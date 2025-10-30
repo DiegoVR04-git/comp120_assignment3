@@ -278,4 +278,29 @@ def network_status():
     return jsonify(status)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Allow controlling debug/reloader via environment variables so the app
+    # can be started safely without VS Code's debugger or the Werkzeug reloader
+    import os
+
+    # FLASK_DEBUG=1 or 'true' enables debug mode; otherwise run in non-debug mode
+    debug_env = os.environ.get('FLASK_DEBUG', '0').lower()
+    debug = debug_env in ('1', 'true', 'yes')
+
+    # By default avoid the automatic reloader when running outside of debugger
+    # as some Windows environments (and some editor-run scenarios) can pass
+    # invalid socket fds to the reloader child which causes OSError WinError 10038.
+    use_reloader_env = os.environ.get('FLASK_USE_RELOADER', None)
+    if use_reloader_env is not None:
+        use_reloader = use_reloader_env.lower() in ('1', 'true', 'yes')
+    else:
+        # default: only enable reloader when explicitly in debug mode and
+        # when the user hasn't disabled it via env var
+        use_reloader = False if not debug else True
+
+    try:
+        app.run(debug=debug, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), use_reloader=use_reloader)
+    except OSError as e:
+        # Known Windows issue: reloader child may receive an invalid fd; retry
+        # without the reloader which avoids socket.fromfd usage.
+        print(f"OSError when starting server: {e}; retrying with use_reloader=False")
+        app.run(debug=debug, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), use_reloader=False)
