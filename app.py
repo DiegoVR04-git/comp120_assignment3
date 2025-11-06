@@ -652,6 +652,44 @@ def network_status():
     
     return jsonify(status)
 
+@app.route('/check-connection')
+def check_connection():
+    """Check if device has internet connectivity (accessible to all roles)"""
+    import socket
+    import requests
+    
+    connectivity_status = {
+        'connected': False,
+        'dns_working': False,
+        'internet_reachable': False,
+        'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
+        'message': ''
+    }
+    
+    try:
+        # Check 1: DNS resolution
+        socket.gethostbyname('www.google.com')
+        connectivity_status['dns_working'] = True
+        
+        # Check 2: Actual internet connectivity via HTTP request
+        response = requests.get('https://www.google.com', timeout=5)
+        if response.status_code == 200:
+            connectivity_status['internet_reachable'] = True
+            connectivity_status['connected'] = True
+            connectivity_status['message'] = 'Your device is connected to the internet.'
+        else:
+            connectivity_status['message'] = 'DNS works, but unable to reach websites.'
+    except socket.gaierror:
+        connectivity_status['message'] = 'DNS resolution failed. Check your DNS settings or router.'
+    except requests.exceptions.Timeout:
+        connectivity_status['message'] = 'Connection timeout. Your internet may be slow or unstable.'
+    except requests.exceptions.ConnectionError:
+        connectivity_status['message'] = 'No internet connection detected. Check your network cables or WiFi.'
+    except Exception as e:
+        connectivity_status['message'] = f'Connection check failed: {str(e)}'
+    
+    return jsonify(connectivity_status)
+
 if __name__ == '__main__':
     # Allow controlling debug/reloader via environment variables so the app
     # can be started safely without VS Code's debugger or the Werkzeug reloader
