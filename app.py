@@ -258,8 +258,33 @@ def login():
     if role not in USER_ROLES:
         return jsonify({'status': 'error', 'message': 'Invalid role'}), 400
 
-    # Home users (customers) can login without password
+    # Home users (customers) - check if they're logging in as registered user or guest
     if role == 'home_user':
+        # If username is "guest" or empty, allow guest login without password
+        if username.lower() == 'guest' or not username:
+            session['authenticated'] = True
+            session['user_role'] = 'home_user'
+            session['username'] = 'guest'
+            return jsonify({'status': 'success', 'role': 'home_user', 'username': 'guest'})
+        
+        # Check if username exists in database
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT username, password FROM users WHERE LOWER(username) = LOWER(?) AND role = ?', 
+                    (username.lower(), 'home_user'))
+        user = cur.fetchone()
+        conn.close()
+        
+        # If user exists but no password provided, reject login
+        if user and user['password']:
+            if not password:
+                return jsonify({'status': 'error', 'message': 'Password is required for this account'}), 401
+            
+            # Verify password
+            if not check_password_hash(user['password'], password):
+                return jsonify({'status': 'error', 'message': 'Invalid password'}), 401
+        
+        # If user doesn't exist in DB or has no password, allow guest login
         session['authenticated'] = True
         session['user_role'] = 'home_user'
         session['username'] = username

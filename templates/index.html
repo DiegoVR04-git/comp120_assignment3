@@ -628,8 +628,8 @@
                         <option value="it_admin">IT Administrator</option>
                         <option value="isp_support">ISP Support</option>
                     </select>
-                    <input id="loginUsername" class="login-input" placeholder="Username (if applicable)" />
-                    <input id="loginPassword" class="login-input" type="password" placeholder="Password (if required)" />
+                    <input id="loginUsername" class="login-input" placeholder="Username (leave blank for guest)" />
+                    <input id="loginPassword" class="login-input" type="password" placeholder="Password (required if you have an account)" />
                 </div>
                 <div class="login-right">
                     <button class="feature-button" id="loginBtn">Login</button>
@@ -1521,7 +1521,8 @@
                     document.getElementById('loginRoleSelect').value = role;
                     document.getElementById('loginUsername').value = '';
                     document.getElementById('loginPassword').value = '';
-                    document.getElementById('loginPassword').style.display = role === 'home_user' ? 'none' : '';
+                    // Always show password field for all roles
+                    document.getElementById('loginPassword').style.display = '';
                     document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
                     this.classList.add('selected');
                 });
