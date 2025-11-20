@@ -281,7 +281,7 @@ def login():
         
         # Verify password
         if not check_password_hash(user['password'], password):
-            return jsonify({'status': 'error', 'message': 'Invalid username or password'}), 401
+            return jsonify({'status': 'error', 'message': 'Wrong password, try again or click on "Forgot Password?" to recover', 'wrong_password': True}), 401
         
         # Login successful
         session['authenticated'] = True

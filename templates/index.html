@@ -671,7 +671,7 @@
                     <button class="feature-button" id="loginBtn">Login</button>
                     <button class="feature-button hidden" id="logoutBtn">Logout</button>
                     <button class="feature-button" id="signupBtn" style="background: linear-gradient(135deg, #7ee787, #4facfe);">Sign Up</button>
-                    <button class="feature-button" id="forgotPasswordBtn" style="background: rgba(255,255,255,0.1); font-size: 0.85rem; padding: 8px 16px;">Forgot Password?</button>
+                    <button class="feature-button" id="forgotPasswordBtn" style="background: linear-gradient(135deg, #f59e0b, #ec4899); font-size: 0.85rem; padding: 8px 16px;">Forgot Password?</button>
                     <div id="loggedInInfo" class="logged-badge" aria-live="polite"></div>
                 </div>
                 <div style="width:100%"><div id="loginError" class="login-error hidden"></div></div>
@@ -1701,7 +1701,10 @@
                         mainContainerEl.classList.remove('hidden');
                         setupDashboard(currentRole);
                     } else {
-                        if (loginErrElm) { loginErrElm.textContent = data.message || 'Login failed'; loginErrElm.classList.remove('hidden'); }
+                        if (loginErrElm) { 
+                            loginErrElm.textContent = data.message || 'Login failed';
+                            loginErrElm.classList.remove('hidden'); 
+                        }
                     }
                 })
                 .catch(err => {
